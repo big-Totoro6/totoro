@@ -8,12 +8,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var (
 	APPID          = "wx9c5b1dce69c4b639"
 	APPSECRET      = "f7808f9ad2cfa7193110f0e9dda922e6"
-	WeatTemplateID = "8azYqSzrl5bHuhuRmwdGHNrtnKbg9YPJffSEpGFJk0U" //天气模板ID，替换成自己的
+	WeatTemplateID = "pd7nxj1wQnTcUm4KZt1igFZuyS_QoyDOqQLrIdCFAR8" //天气模板ID，替换成自己的
 	WeatherKey     = "ba66f6584af74626afccb83cd8a96b3c"            //和风天气私钥
 	LocationId     = "101210112"                                   //拱墅的locationId
 )
@@ -184,7 +185,7 @@ func setVData(tmp, wea, tip string) V {
 			Color string `json:"color"`
 		}{
 			Value: tip,
-			Color: "#d4a7da",
+			//Color: "#68228B",
 		},
 		Sentence: struct {
 			Value string `json:"value"`
@@ -200,7 +201,11 @@ func setVData(tmp, wea, tip string) V {
 // 获取天气
 func getweather() (string, string, string) {
 	url := fmt.Sprintf("https://devapi.qweather.com/v7/weather/3d?location=%s&key=%s", LocationId, WeatherKey)
-	resp, err := http.Get(url)
+	// 设置本次请求最大超时时间为 5s
+	client := http.Client{
+		Timeout: 5 * time.Second,
+	}
+	resp, err := client.Get(url)
 	if err != nil {
 		fmt.Println("获取天气失败", err)
 		return "", "", ""
@@ -220,12 +225,13 @@ func weacomb(thisday string) (string, string, string) {
 	tempMin := gjson.Get(thisday, "tempMin").Str     //最低气温
 	textDay := gjson.Get(thisday, "textDay").Str     //白天天气
 	textNight := gjson.Get(thisday, "textNight").Str //傍晚天气
-	sunset := gjson.Get(thisday, "sunset").Str       //日落
-	moonrise := gjson.Get(thisday, "moonrise").Str   //月升
-	moonPhase := gjson.Get(thisday, "moonPhase").Str //月相
+	//sunset := gjson.Get(thisday, "sunset").Str       //日落
+	//moonrise := gjson.Get(thisday, "moonrise").Str   //月升
+	//moonPhase := gjson.Get(thisday, "moonPhase").Str //月相
 	tem := fmt.Sprintf("tempMax: %s℃ -- tempMin: %s℃", tempMax, tempMin)
 	wea := fmt.Sprintf("morning: %s -- night: %s", textDay, textNight)
-	tip := fmt.Sprintf("日落: %s 月升: %s 月相: %s", sunset, moonrise, moonPhase)
+	//tip := fmt.Sprintf("赚钱赚钱赚钱 money money mooney 生活!!!\n太阳在 %s 时分落下   ☼  \n月亮在 %s 时分升起   ☽ \n等我攒够了六便士，就去追我的月亮 （๑•̀ㅁ•́ฅ）", sunset, moonrise)
+	tip := "\nPer aspera ad astra."
 	return tem, wea, tip
 }
 func getSenc() string {
